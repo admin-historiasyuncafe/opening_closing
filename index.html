@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historias y un café - Registro</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f3e8; color: #4a3b32; padding: 20px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.15); border-top: 5px solid #6f4e37; }
+        h2 { text-align: center; color: #6f4e37; margin-bottom: 25px; }
+        
+        label.input-label { display: block; margin-bottom: 8px; font-weight: bold; color: #6f4e37; }
+        input[type="text"], select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        
+        .task-container { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; max-height: 400px; overflow-y: auto; }
+        .checkbox-group { display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .checkbox-group:last-child { border-bottom: none; }
+        .checkbox-group input { width: 20px; height: 20px; margin-right: 15px; accent-color: #6f4e37; cursor: pointer; }
+        .checkbox-group label { cursor: pointer; line-height: 1.4; font-size: 15px; flex: 1; }
+        
+        button { width: 100%; padding: 15px; background: #6f4e37; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        button:hover { background: #5a3e2b; }
+        
+        .hidden { display: none; }
+        #loading { text-align: center; display: none; color: #6f4e37; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>☕ Historias y un café</h2>
+
+    <form name="submit-to-google-sheet" id="appForm">
+        
+        <label class="input-label">Realizado por:</label>
+        <select name="Realizado_por" required>
+            <option value="" disabled selected>-- Selecciona Persona --</option>
+            <option value="Valeria">Valeria</option>
+            <option value="Kiaraliz">Kiaraliz</option>
+            <option value="Verónica">Verónica</option>
+        </select>
+
+        <label class="input-label">Selecciona el Turno</label>
+        <select name="Turno" id="shiftSelector" required onchange="updateTasks()">
+            <option value="" disabled selected>-- Elige una opción --</option>
+            <option value="Opening">Opening ☀️</option>
+            <option value="Closing">Closing 🌙</option>
+        </select>
+
+        <div id="tasksArea" class="hidden">
+            <label class="input-label">Marca las tareas realizadas:</label>
+            <div id="taskList" class="task-container">
+                </div>
+        </div>
+
+        <input type="hidden" name="Tareas_Completadas" id="hiddenTasksInput">
+
+        <label class="input-label">Comentarios o Incidencias</label>
+        <textarea name="Comentarios" rows="3" placeholder="¿Algo roto? ¿Faltó algo?"></textarea>
+
+        <label class="input-label">Supervisado por:</label>
+        <select name="Supervisado_por" required>
+            <option value="" disabled selected>-- Selecciona Supervisor --</option>
+            <option value="Valeria">Valeria</option>
+            <option value="Kiaraliz">Kiaraliz</option>
+            <option value="Aida">Aida</option>
+            <option value="José">José</option>
+        </select>
+
+        <button type="submit" id="submitBtn">Registrar Turno</button>
+        <p id="loading">Enviando datos... ⏳</p>
+    </form>
+</div>
+
+<script>
+    // --- TUS LISTAS DE TAREAS ---
+    const openingTasks = [
+        "Prender luces", "Verificar petty", "Verificar que Doordash esté conectado", "Llenar envases para cubiertos sucios", 
+        "Acomodar pastries", "Tomar temperaturas", "Abrir puerta de almacén", "Organizar paños", "Verificar baños", 
+        "Verificar piso de los salones", "Rellenar salsas", "Hacer pruebas de impresoras", "Prender música", 
+        "Subir cortina Salón 2", "Cambiar temperaturas de A/C's a 69º", "Sacar bancos", "Prender abanico de puerta", 
+        "Sacar HOLSTERS", "Prender open sign", "Desconectar celulares y tabletas", "Windex a puerta"
+    ];
+
+    const closingTasks = [
+        "Salon 1 - Cajas", "Salon 1 - Piso", "Salon 2 - Cajas", "Salon 2 - piso", 
+        "Limpiar baños - CLIENTES (Jue/Dom degreaser)", "Limpiar baños - EQUIPO (Jue/Dom degreaser)", 
+        "Rellenar neveras", "Rellenar gavetas", "Temperaturas", "Empanadas - Notificar a cocina", 
+        "Guardar postres", "Sacar basuras", "Jueves y domingo barrer y mapear almacén", 
+        "Rellenar ketchups y syrups", "Acomodar cojines y cubiertos", "Windex a puerta", 
+        "Entrar los bancos", "Cambiar temperaturas de A/C's a 74º", "Limpiar mesa de platos sucios", 
+        "Limpiar paños y tenderlos", "Apagar música", "Apagar OPEN sign", "Cerrar puerta de almacén", 
+        "Cuadre de caja", "Asegurarse que todas las neveras estén cerradas", 
+        "Asegurarse que todo equipo de limpieza se haya guardado", "Apagar todas las luces", 
+        "Cargar los teléfonos de ser necesario", "Bajar cortina Salón 2", "Limpiar mesa Host", 
+        "Verificar cheques firmados", "Rellenar salsas", "Limpiar pared de madera Salón 1"
+    ];
+
+    // --- LÓGICA DE LA APP ---
+    function updateTasks() {
+        const shift = document.getElementById('shiftSelector').value;
+        const taskListDiv = document.getElementById('taskList');
+        const tasksArea = document.getElementById('tasksArea');
+        
+        taskListDiv.innerHTML = ""; 
+        let currentTasks = [];
+
+        if (shift === 'Opening') {
+            currentTasks = openingTasks;
+            tasksArea.classList.remove('hidden');
+        } else if (shift === 'Closing') {
+            currentTasks = closingTasks;
+            tasksArea.classList.remove('hidden');
+        } else {
+            tasksArea.classList.add('hidden');
+            return;
+        }
+
+        currentTasks.forEach(task => {
+            const div = document.createElement('div');
+            div.className = 'checkbox-group';
+            div.innerHTML = `
+                <input type="checkbox" value="${task}" name="task_item">
+                <label>${task}</label>
+            `;
+            div.querySelector('label').addEventListener('click', function() {
+                const cb = this.previousElementSibling;
+                cb.checked = !cb.checked;
+            });
+            taskListDiv.appendChild(div);
+        });
+    }
+
+    // --- ENVÍO A GOOGLE SHEETS ---
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwA-_Aiq5jnR0ocF4j6_Zsqc4_7ByISVBewtuWGXCULJi-UlKkE2QIqXEUdKEffwYt5/exec'; // <--- ¡PEGA TU URL AQUÍ!
+    const form = document.forms['submit-to-google-sheet'];
+    const loadingText = document.getElementById('loading');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        
+        const checkboxes = document.querySelectorAll('input[name="task_item"]:checked');
+        let values = [];
+        checkboxes.forEach((checkbox) => {
+            values.push(checkbox.value);
+        });
+        
+        document.getElementById('hiddenTasksInput').value = values.join(', ');
+
+        loadingText.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Enviando...";
+
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                alert("¡Registro guardado exitosamente! ☕");
+                form.reset();
+                document.getElementById('tasksArea').classList.add('hidden');
+                loadingText.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Registrar Turno";
+            })
+            .catch(error => {
+                console.error('Error!', error.message);
+                alert("Hubo un error. Revisa tu conexión.");
+                loadingText.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Registrar Turno";
+            });
+    });
+</script>
+
+</body>
+</html>
