@@ -2,33 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
     <title>Historias y un café - Registro</title>
+    
+    <link rel="icon" type="image/png" href="sello_historias_y_un_cafe_01a.png">
+
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f3e8; color: #4a3b32; padding: 20px; margin: 0; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.15); border-top: 5px solid #6f4e37; }
-        h2 { text-align: center; color: #6f4e37; margin-bottom: 25px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f7f3e8; color: #4a3b32; padding: 15px; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(111, 78, 55, 0.15); border-top: 5px solid #6f4e37; }
         
+        /* ESTILOS PARA EL LOGO */
+        .logo-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo-header img {
+            max-width: 100%; /* Se ajusta al ancho del contenedor */
+            height: auto;    /* Mantiene la proporción correcta */
+            max-height: 150px; /* Evita que sea excesivamente alto en pantallas grandes */
+            display: inline-block;
+        }
+
         label.input-label { display: block; margin-bottom: 8px; font-weight: bold; color: #6f4e37; }
         input[type="text"], select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
         
-        .task-container { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; max-height: 400px; overflow-y: auto; }
-        .checkbox-group { display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-        .checkbox-group:last-child { border-bottom: none; }
-        .checkbox-group input { width: 20px; height: 20px; margin-right: 15px; accent-color: #6f4e37; cursor: pointer; }
-        .checkbox-group label { cursor: pointer; line-height: 1.4; font-size: 15px; flex: 1; }
+        /* Estilos para la lista de tareas */
+        .task-container { background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 20px; max-height: 50vh; overflow-y: auto; }
+        .checkbox-group { display: flex; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eee; }
+        .checkbox-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0;}
+        .checkbox-group input { width: 22px; height: 22px; margin-right: 15px; accent-color: #6f4e37; cursor: pointer; margin-top: 2px; }
+        .checkbox-group label { cursor: pointer; line-height: 1.4; font-size: 16px; flex: 1; color: #333; }
         
         button { width: 100%; padding: 15px; background: #6f4e37; color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.3s; }
         button:hover { background: #5a3e2b; }
         
         .hidden { display: none; }
-        #loading { text-align: center; display: none; color: #6f4e37; font-weight: bold; margin-top: 10px; }
+        #loading { text-align: center; display: none; color: #6f4e37; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>☕ Historias y un café</h2>
+    <div class="logo-header">
+        <img src="logo_historias_y_un_cafe_01.png" alt="Logo Historias y un café">
+    </div>
 
     <form name="submit-to-google-sheet" id="appForm">
         
@@ -68,7 +86,7 @@
         </select>
 
         <button type="submit" id="submitBtn">Registrar Turno</button>
-        <p id="loading">Enviando datos... ⏳</p>
+        <p id="loading">Enviando datos... ☕</p>
     </form>
 </div>
 
@@ -123,6 +141,7 @@
                 <input type="checkbox" value="${task}" name="task_item">
                 <label>${task}</label>
             `;
+            // Permite marcar el checkbox haciendo clic en el texto
             div.querySelector('label').addEventListener('click', function() {
                 const cb = this.previousElementSibling;
                 cb.checked = !cb.checked;
@@ -132,7 +151,11 @@
     }
 
     // --- ENVÍO A GOOGLE SHEETS ---
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbwA-_Aiq5jnR0ocF4j6_Zsqc4_7ByISVBewtuWGXCULJi-UlKkE2QIqXEUdKEffwYt5/exec'; // <--- ¡PEGA TU URL AQUÍ!
+    
+    // ⚠️⚠️⚠️ ¡IMPORTANTE! PEGA TU URL DE APPS SCRIPT AQUÍ ABAJO ⚠️⚠️⚠️
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwA-_Aiq5jnR0ocF4j6_Zsqc4_7ByISVBewtuWGXCULJi-UlKkE2QIqXEUdKEffwYt5/exec'; 
+    // ⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️
+
     const form = document.forms['submit-to-google-sheet'];
     const loadingText = document.getElementById('loading');
     const submitBtn = document.getElementById('submitBtn');
@@ -140,6 +163,7 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
         
+        // Recopilar checkboxes marcados
         const checkboxes = document.querySelectorAll('input[name="task_item"]:checked');
         let values = [];
         checkboxes.forEach((checkbox) => {
@@ -148,13 +172,16 @@
         
         document.getElementById('hiddenTasksInput').value = values.join(', ');
 
+        // UI de carga
         loadingText.style.display = 'block';
         submitBtn.disabled = true;
         submitBtn.innerText = "Enviando...";
 
+        // Enviar
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
-                alert("¡Registro guardado exitosamente! ☕");
+                // Resetear formulario si fue exitoso
+                alert("¡Gracias! Turno registrado exitosamente. ☕✅");
                 form.reset();
                 document.getElementById('tasksArea').classList.add('hidden');
                 loadingText.style.display = 'none';
@@ -162,8 +189,9 @@
                 submitBtn.innerText = "Registrar Turno";
             })
             .catch(error => {
+                // Manejo de errores
                 console.error('Error!', error.message);
-                alert("Hubo un error. Revisa tu conexión.");
+                alert("⚠️ Hubo un error al intentar guardar. \n\nPor favor revisa tu conexión a internet e inténtalo de nuevo.");
                 loadingText.style.display = 'none';
                 submitBtn.disabled = false;
                 submitBtn.innerText = "Registrar Turno";
